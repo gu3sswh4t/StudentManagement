@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Record Management</title>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/images/icons/icon-192x192.png"> <style>
+    <link rel="manifest" href="/manifest.json"> <link rel="icon" href="/images/icons/icon-192x192.png"> <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -394,7 +393,7 @@
 
         /* Bulk Add Modal Styles */
          #bulkAddModal .modal-content {
-            max-width: 800px;
+             max-width: 800px;
          }
 
          #bulkAddFormsContainer {
@@ -425,53 +424,53 @@
         }
 
          /* PWA Install Button */
-        #installButton {
-            display: none; /* Hidden by default */
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        #installButton:hover {
-             background-color: #0056b3;
-        }
-
-
-        /* --- New Modal Styles for School Record Release History --- */
-        #school-release-history-modal .modal-content {
-            max-width: 600px; /* Similar size to history/view modals */
-        }
-
-        #school-release-history-details ul {
-             list-style: none; /* Remove default list style */
-             padding: 0;
-        }
-        #school-release-history-details ul li {
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-        }
-        #school-release-history-details ul li h4 {
-             margin-top: 0;
-             margin-bottom: 5px;
-             color: #555;
-        }
-         #school-release-history-details ul li p {
-             margin-bottom: 5px;
-             line-height: 1.4;
+         #installButton {
+             display: none; /* Hidden by default */
+             margin-top: 15px;
+             padding: 10px 20px;
+             background-color: #007bff;
+             color: white;
+             border: none;
+             border-radius: 5px;
+             cursor: pointer;
+             font-size: 16px;
          }
-         #school-release-history-details ul li ul {
-             margin-top: 5px;
-             padding-left: 20px;
-             list-style: disc; /* Use disc for nested lists */
+         #installButton:hover {
+              background-color: #0056b3;
          }
-          #school-release-history-details ul li ul li {
+
+
+         /* --- New Modal Styles for School Record Release History --- */
+         #school-release-history-modal .modal-content {
+             max-width: 600px; /* Similar size to history/view modals */
+         }
+
+         #school-release-history-details ul {
+              list-style: none; /* Remove default list style */
+              padding: 0;
+         }
+         #school-release-history-details ul li {
+             background-color: #f9f9f9;
+             border: 1px solid #eee;
+             padding: 15px;
+             margin-bottom: 15px;
+             border-radius: 5px;
+         }
+         #school-release-history-details ul li h4 {
+              margin-top: 0;
+              margin-bottom: 5px;
+              color: #555;
+         }
+          #school-release-history-details ul li p {
+              margin-bottom: 5px;
+              line-height: 1.4;
+          }
+          #school-release-history-details ul li ul {
+              margin-top: 5px;
+              padding-left: 20px;
+              list-style: disc; /* Use disc for nested lists */
+          }
+           #school-release-history-details ul li ul li {
               background-color: transparent; /* Override nested list item background */
               border: none; /* Override nested list item border */
               padding: 2px 0;
@@ -496,8 +495,8 @@
             <p id="user-info"></p>
 
              <div id="action-buttons">
-                <button id="addRecordButton">Add Record</button>
-                <button id="bulkAddButton">Bulk Add Records</button>
+                 <button id="addRecordButton">Add Record</button>
+                 <button id="bulkAddButton">Bulk Add Records</button>
              </div>
 
             <div id="search-container">
@@ -625,7 +624,17 @@
 
                 <div>
                     <label for="remarks">Remarks:</label>
-                    <textarea id="remarks"></textarea>
+                     <select id="remarks">
+                         <option value="">-- Select Remark --</option>
+                         <option value="Transferred In">Transferred In</option>
+                         <option value="Transferred Out">Transferred Out</option>
+                         <option value="Returning">Returning</option>
+                         <option value="Old Student">Old Student</option>
+                         <option value="CCT Recipient">CCT Recipient</option>
+                         <option value="Balik Aral">Balik Aral</option>
+                         <option value="Special Needs Education">Special Needs Education</option>
+                         <option value="Accelerated">Accelerated</option>
+                     </select>
                 </div>
 
 
@@ -684,8 +693,8 @@
             <div id="bulkAddFormsContainer">
                 </div>
              <div style="text-align: center; margin-top: 20px;">
-                <button type="button" id="addBulkRecordButton" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;">+ Add New Student</button>
-                <button type="button" onclick="processBulkRecordsForm()" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Process All Records</button>
+                 <button type="button" id="addBulkRecordButton" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;">+ Add New Student</button>
+                 <button type="button" onclick="processBulkRecordsForm()" style="background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Process All Records</button>
              </div>
         </div>
     </div>
