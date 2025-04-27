@@ -1,5 +1,7 @@
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
+        // --- IMPORTANT: Update the path below with your GitHub Pages subdirectory if needed ---
+        // Example: '/StudentManagement/service-worker.js' instead of '/service-worker.js'
         navigator.serviceWorker.register('/service-worker.js').then(registration => {
             console.log('Service Worker registered with scope:', registration.scope);
         }).catch(error => {
