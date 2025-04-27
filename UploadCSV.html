@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload CSV</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .upload-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #3498db;
+            margin-bottom: 30px;
+        }
+
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .file-input-button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            border: none;
+        }
+
+        .file-input-button:hover {
+            background-color: #2980b9;
+        }
+
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            font-size: 100px;
+            cursor: pointer;
+        }
+
+        #file-name {
+            margin-top: 10px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        #upload-button {
+            background-color: #2ecc71;
+            color: white;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        #upload-button:hover {
+            background-color: #27ae60;
+        }
+
+        #progress-container {
+            margin-top: 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+            display: none;
+        }
+
+        #progress-bar {
+            background-color: #2ecc71;
+            height: 20px;
+            width: 0%;
+            border-radius: 5px;
+        }
+
+        #upload-status {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            background-color: #777;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">Back to Main</a>
+    <div class="upload-container">
+        <h1>Upload CSV File</h1>
+        <form id="upload-form" class="upload-form">
+            <div class="file-input-wrapper">
+                <button class="file-input-button">Select CSV File</button>
+                <input type="file" id="csv-file" class="file-input" accept=".csv">
+            </div>
+            <p id="file-name"></p>
+            <button type="button" id="upload-button">Upload</button>
+
+            <div id="progress-container">
+                <div id="progress-bar"></div>
+            </div>
+            <p id="upload-status"></p>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script>
+        // Initialize Firebase (Use your configuration from index.html)
+        const firebaseConfig = {
+            apiKey: "AIzaSyByP-tkxIQdK7dFZa9uwKqH1I4hQDYh_1U",
+            authDomain: "cnhsstudentdatabase.firebaseapp.com",
+            databaseURL: "https://cnhsstudentdatabase-default-rtdb.firebaseio.com",
+            projectId: "cnhsstudentdatabase",
+            storageBucket: "cnhsstudentdatabase.firebasestorage.app",
+            messagingSenderId: "999201205232",
+            appId: "1:999201205232:web:521f2720c930a2db304b35"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+
+        const fileInput = document.getElementById('csv-file');
+        const fileNameDisplay = document.getElementById('file-name');
+        const uploadButton = document.getElementById('upload-button');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const uploadStatus = document.getElementById('upload-status');
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                fileNameDisplay.textContent = `Selected file: ${file.name}`;
+            } else {
+                fileNameDisplay.textContent = '';
+            }
+        });
+
+        uploadButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                uploadStatus.textContent = 'Please select a CSV file.';
+                uploadStatus.style.color = 'red';
+                return;
+            }
+
+            const storageRef = storage.ref(`uploads/${file.name}`);
+            const uploadTask = storageRef.put(file);
+
+            progressContainer.style.display = 'block';
+            uploadStatus.textContent = 'Uploading...';
+            uploadStatus.style.color = '#555';
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressBar.style.width = progress + '%';
+                },
+                (error) => {
+                    console.error('Upload failed:', error);
+                    uploadStatus.textContent = `Upload failed: ${error.message}`;
+                    uploadStatus.style.color = 'red';
+                    progressContainer.style.display = 'none';
+                },
+                () => {
+                    // Upload successful
+                    uploadStatus.textContent = 'Upload successful!';
+                    uploadStatus.style.color = 'green';
+                    progressContainer.style.display = 'none';
+                    // You can get the download URL here if needed:
+                    // uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    //     console.log('File available at', downloadURL);
+                    // });
+                    // Optionally, you might want to redirect the user or perform other actions
+                }
+            );
+        });
+    </script>
+</body>
+</html>
