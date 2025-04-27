@@ -1,7 +1,6 @@
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // --- IMPORTANT: Update the path below with your GitHub Pages subdirectory if needed ---
-        // Example: '/StudentManagement/service-worker.js' instead of '/service-worker.js'
+
         navigator.serviceWorker.register('/service-worker.js').then(registration => {
             console.log('Service Worker registered with scope:', registration.scope);
         }).catch(error => {
@@ -148,26 +147,138 @@ const addBulkRecordButton = document.getElementById('addBulkRecordButton');
 const confirmationMessage = document.getElementById('confirmation-message');
 const errorMessage = document.getElementById('error-message');
 
-const authContainer = document.getElementById('auth-container');
-const authEmailInput = document.getElementById('auth-email');
-const authPasswordInput = document.getElementById('auth-password');
-const authLoginButton = document.getElementById('auth-login');
-const authSignupButton = document.getElementById('auth-signup');
-const authLogoutButton = document.getElementById('auth-logout');
-const mainContentDiv = document.getElementById('main-content');
-const userInfoPara = document.getElementById('user-info');
+const authContainer = document.getElementById('auth-container'); // In index.html
+const authEmailInput = document.getElementById('auth-email'); // In index.html
+const authPasswordInput = document.getElementById('auth-password'); // In index.html
+const authLoginButton = document.getElementById('auth-login'); // In index.html
+const authSignupButton = document.getElementById('auth-signup'); // In index.html
+const authLogoutButton = document.getElementById('auth-logout'); // In index.html
+const mainContentDiv = document.getElementById('main-content'); // In index.html
+const userInfoPara = document.getElementById('user-info'); // In index.html
+
+
+// This check and listener are primarily for index.html
+if (authContainer && mainContentDiv && userInfoPara && authLogoutButton) {
+     firebase.auth().onAuthStateChanged((user) => {
+         if (user) {
+             console.log("Firebase Auth: User is signed in:", user.email);
+             if (authContainer) authContainer.style.display = 'none'; // Hide login form if present
+             if (mainContentDiv) mainContentDiv.style.display = 'block'; // Show main content
+             if (userInfoPara) userInfoPara.textContent = `Logged in as: ${user.email}`;
+             if (authLogoutButton) authLogoutButton.style.display = 'inline-block';
+
+             // If on login.html and get authenticated, redirect to index.html
+             if (window.location.pathname.includes('login.html') || window.location.pathname.endsWith('/')) { // Also check for root
+                  // --- IMPORTANT: Update the path below with your GitHub Pages subdirectory + index.html ---
+                 const indexPath = '/index.html'; // Example: '/StudentManagement/index.html'
+                  if (window.location.pathname !== indexPath && !window.location.pathname.endsWith('/index.html')) {
+                      window.location.href = indexPath;
+                  }
+             }
+
+
+              const currentSearchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
+              if (currentSearchTerm === "") {
+                   renderStudents([]);
+              } else {
+                   const results = allStudentsData.filter(studentData => {
+                        const student = studentData.val();
+                        const searchTermLower = currentSearchTerm.toLowerCase();
+                        return (student && student.lrn && String(student.lrn).toLowerCase().startsWith(searchTermLower)) ||
+                               (student && student.firstName && student.firstName.toLowerCase().startsWith(searchTermLower)) ||
+                               (student && student.lastName && student.lastName.toLowerCase().startsWith(searchTermLower));
+                   });
+                   renderStudents(results);
+              }
+
+         } else {
+             console.log("Firebase Auth: User is signed out.");
+             // These elements are likely on index.html, show login form
+             if (authContainer) authContainer.style.display = 'block';
+             if (mainContentDiv) mainContentDiv.style.display = 'none';
+             if (userInfoPara) userInfoPara.textContent = '';
+             if (authLogoutButton) authLogoutButton.style.display = 'none';
+             if (studentList) studentList.innerHTML = '';
+
+             // If on index.html and not authenticated, redirect to login.html
+              // --- IMPORTANT: Update the path below with your GitHub Pages subdirectory + login.html ---
+             if (!window.location.pathname.includes('login.html')) {
+                 const loginPath = '/login.html'; // Example: '/StudentManagement/login.html'
+                 if (window.location.pathname !== loginPath && !window.location.pathname.endsWith('/login.html')) {
+                      window.location.href = loginPath;
+                 }
+             }
+
+         }
+     });
+
+     // Listeners for buttons on index.html (if auth elements are present)
+     if (authLoginButton && authEmailInput && authPasswordInput) {
+         authLoginButton.addEventListener('click', () => {
+             // This login logic is now primarily handled on login.html
+             console.warn("Login button clicked on index.html. Redirecting to login page.");
+             // --- IMPORTANT: Update the path below with your GitHub Pages subdirectory + login.html ---
+             window.location.href = '/login.html'; // Example: '/StudentManagement/login.html'
+         });
+     }
+
+     if (authSignupButton && authEmailInput && authPasswordInput) {
+         authSignupButton.addEventListener('click', () => {
+              // This signup logic is now primarily handled on login.html
+              console.warn("Sign Up button clicked on index.html. Redirecting to login page.");
+              // --- IMPORTANT: Update the path below with your GitHub Pages subdirectory + login.html ---
+              window.location.href = '/login.html'; // Example: '/StudentManagement/login.html'
+         });
+     }
+
+     if (authLogoutButton) {
+         authLogoutButton.addEventListener('click', () => {
+               const errorMessageElement = document.getElementById('error-message');
+
+             firebase.auth().signOut().then(() => {
+                 console.log("Logout successful.");
+                  if (errorMessageElement) {
+                       errorMessageElement.textContent = `Logged out successfully.`;
+                       errorMessageElement.style.backgroundColor = '#d4edda';
+                       errorMessageElement.style.color = '#155724';
+                       errorMessageElement.style.border = '1px solid #c3e6cb';
+                       errorMessageElement.style.display = 'block';
+                       setTimeout(() => {
+                            if(errorMessageElement) {
+                                 errorMessageElement.style.display = 'none';
+                                 errorMessageElement.style.backgroundColor = '#f8d7da';
+                                 errorMessageElement.style.color = '#721c24';
+                                 errorMessageElement.style.border = '1px solid #f5c6cb';
+                            }
+                       }, 3000);
+                  }
+                  // After logout, onAuthStateChanged will fire and redirect to login page
+             }).catch((error) => {
+                 console.error("Logout error:", error);
+                  if (errorMessageElement) {
+                      errorMessageElement.textContent = `Logout Failed: ${error.message}`;
+                      errorMessageElement.style.display = 'block';
+                      setTimeout(() => { if(errorMessageElement) errorMessageElement.style.display = 'none'; }, 5000);
+                  }
+             });
+         });
+     }
+
+
+} else {
+    console.warn("Authentication container or main content elements not found. Assuming this script is NOT on index.html or elements are missing.");
+    // This block would execute if this script was loaded on login.html,
+    // but the primary auth listeners for login.html are typically handled
+    // in a separate script embedded in login.html itself, as seen in your login.html code.
+    // This ensures the redirect happens immediately without waiting for the main script to load.
+}
+
 
 if (!authContainer || !authEmailInput || !authPasswordInput || !authLoginButton || !authSignupButton || !authLogoutButton || !mainContentDiv || !userInfoPara) {
-     console.error("One or more required authentication elements not found in index.html. Authentication functionality may not work correctly.");
-      const pageBody = document.body;
-      const authErrorDiv = document.createElement('div');
-      authErrorDiv.style.color = 'red';
-      authErrorDiv.style.fontWeight = 'bold';
-      authErrorDiv.style.textAlign = 'center';
-      authErrorDiv.style.marginTop = '20px';
-      authErrorDiv.textContent = "Authentication form elements are missing. Please check your index.html.";
-      if(pageBody) pageBody.prepend(authErrorDiv);
+     // This is a redundant check from the start of the file, kept for safety but logic is in the listener above.
+     // console.error("One or more required authentication elements not found in index.html. Authentication functionality may not work correctly.");
 }
+
 
 let enrollmentCounter = 0;
 let misconductCounter = 0;
@@ -193,11 +304,11 @@ function renderStudents(data) {
             listItem.innerHTML = `
                  <div>
                      <strong>LRN:</strong> ${student.lrn || 'N/A'}<br>
-                     <strong>Name:</strong> ${student.firstName || ''} ${student.middleName ? student.middleName + ' ' : ''}${student.lastName || ''}
+                     <strong>Name:</strong> ${student.firstName || ''} <span class="math-inline">\{student\.middleName ? student\.middleName \+ ' ' \: ''\}</span>{student.lastName || ''}
                  </div>
                  <div>
-                     <button class="view-btn" onclick="viewStudent('${studentId}')">View</button>
-                     <button class="edit-btn" onclick="editStudent('${studentId}')">Edit</button>
+                     <button class="view-btn" onclick="viewStudent('<span class="math-inline">\{studentId\}'\)"\>View</button\>
+<button class\="edit\-btn" onclick\="editStudent\('</span>{studentId}')">Edit</button>
                  </div>
             `;
 
@@ -328,7 +439,7 @@ function saveStudentData(newStudentData, studentId = null) {
                  }
 
                  if (changed) {
-                     console.log(`[SAVE] Change detected for main history field "${key}": Old=${JSON.stringify(oldValue)}, New=${JSON.stringify(newValue)}`);
+                     console.log(`[SAVE] Change detected for main history field "<span class="math-inline">\{key\}"\: Old\=</span>{JSON.stringify(oldValue)}, New=${JSON.stringify(newValue)}`);
                      changesForMainHistory[key] = {
                          oldValue: oldData.hasOwnProperty(key) ? oldData[key] : null,
                          newValue: newStudentData.hasOwnProperty(key) ? newStudentData[key] : null
@@ -415,7 +526,7 @@ function saveStudentData(newStudentData, studentId = null) {
                       const currentNewValue = newStudentData.hasOwnProperty(key) ? newStudentData[key] : null;
 
                       if (isEffectivelyEmpty(currentNewValue) && !isEffectivelyEmpty(originalOldValue)) {
-                           console.log(`[SAVE] Cleaning up field "${key}" (was not empty, now is): Old=${JSON.stringify(originalOldValue)}, New=${JSON.stringify(currentNewValue)}`);
+                           console.log(`[SAVE] Cleaning up field "<span class="math-inline">\{key\}" \(was not empty, now is\)\: Old\=</span>{JSON.stringify(originalOldValue)}, New=${JSON.stringify(currentNewValue)}`);
                            updateData[key] = null;
                            needsUpdate = true;
                       } else if (isEffectivelyEmpty(currentNewValue) && !oldData.hasOwnProperty(key)) {
@@ -458,7 +569,6 @@ function saveStudentData(newStudentData, studentId = null) {
              }
              throw error;
         });
-
     } else {
         console.log("[SAVE] Attempting to add new student.");
         console.log("[SAVE] New data from form:", newStudentData);
@@ -601,8 +711,14 @@ function showHistory(studentId) {
                          if (key === 'fourPs') {
                               valuesAreDifferent = (change.oldValue === true) !== (change.newValue === true);
                          } else if (typeof change.oldValue === 'object' || typeof change.newValue === 'object') {
-                              const oldObj = typeof change.oldValue === 'object' && change.oldValue !== null ? change.oldValue : {};
-                              const newObj = typeof change.newValue === 'object' && change.newValue !== null ? change.newValue : {};
+                              const oldObj = typeof change.oldValue === 'object' && change.oldValue !== null ? old
+                                
+                         let valuesAreDifferent = true;
+                         if (key === 'fourPs') {
+                              valuesAreDifferent = (change.oldValue === true) !== (change.newValue === true);
+                         } else if (typeof change.oldValue === 'object' || typeof change.newValue === 'object') {
+                              const oldObj = typeof change.oldValue === 'object' && change.oldValue !== null ? oldData[key] : {}; // Use oldData[key] for original structure
+                              const newObj = typeof change.newValue === 'object' && change.newValue !== null ? newStudentData[key] : {}; // Use newStudentData[key] for original structure
                               valuesAreDifferent = !areObjectsDeepEqual(oldObj, newObj);
                          }
                          else {
